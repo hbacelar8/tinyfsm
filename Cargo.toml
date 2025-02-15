@@ -1,0 +1,14 @@
+[package]
+name = "tinyfsm"
+version = "0.1.0"
+edition = "2021"
+authors = ["H Bacelar <dev@bacelar.fr>"]
+description = "A simple Rust finite state machine library"
+license = "MIT"
+repository = "https://github.com/hbacelar8/tinyfsm"
+documentation = "https://docs.rs/tinyfsm"
+readme = "README.md"
+keywords = ["tinyfsm", "state", "machine", "fsm"]
+exclude = ["target/", ".git/", ".github/", "*.lock"]
+
+[dependencies]
