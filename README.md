@@ -8,28 +8,6 @@ A simple Rust finite state machine library.
 use tinyfsm::{state_machine, StateBehavior};
 
 #[derive(Clone, Copy, PartialEq, Debug)]
-#[allow(clippy::enum_variant_names)]
-enum MarioStates {
-    DeadMario,
-    SmallMario,
-    SuperMario,
-    FireMario,
-    CapeMario,
-}
-
-#[derive(Clone, Copy, PartialEq, Debug)]
-enum Events {
-    GetConsumable(MarioConsumables),
-    Hit,
-}
-
-#[derive(Debug)]
-struct Context {
-    size: MarioSize,
-    alive: bool,
-}
-
-#[derive(Clone, Copy, PartialEq, Debug)]
 enum MarioConsumables {
     Mushroom,
     Flower,
@@ -41,6 +19,22 @@ enum MarioSize {
     Small,
     Large,
 }
+
+state_machine!(
+    Mario,
+    MarioStates {
+        DeadMario,
+        SmallMario,
+        SuperMario,
+        FireMario,
+        CapeMario
+    },
+    Events { GetConsumable(MarioConsumables), Hit },
+    Context {
+        size: MarioSize = MarioSize::Small,
+        alive: bool = true
+    }
+);
 
 impl StateBehavior for MarioStates {
     type State = MarioStates;
@@ -88,8 +82,6 @@ impl StateBehavior for MarioStates {
         }
     }
 }
-
-state_machine!(Mario, MarioStates, Events, Context);
 
 fn main() {
     let mut mario = Mario::new(
