@@ -4,7 +4,7 @@ use core::fmt;
 pub trait StateBehavior {
     type State: Clone + Copy + PartialEq + fmt::Debug;
     type Event: Clone + Copy + PartialEq + fmt::Debug;
-    type Context: fmt::Debug;
+    type Context: Default + fmt::Debug;
 
     /// Handle an event and return next state (if a transition occurs)
     fn handle(&self, event: &Self::Event, _context: &mut Self::Context) -> Option<Self::State>;
