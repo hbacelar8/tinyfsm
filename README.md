@@ -76,10 +76,7 @@ impl StateBehavior for MarioStates {
                 Flower => Some(FireMario),
                 _ => None,
             },
-            (SmallMario, Hit) => Some(DeadMario),
-            (SuperMario, Hit) => Some(SmallMario),
-            (FireMario, Hit) => Some(SmallMario),
-            (CapeMario, Hit) => Some(SmallMario),
+            (SmallMario | SuperMario | FireMario | CapeMario, Hit) => Some(DeadMario),
             (DeadMario, _) => None,
         }
     }
