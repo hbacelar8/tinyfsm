@@ -1,4 +1,4 @@
-use tinyfsm::{state_machine, StateBehavior};
+use rustfsm::{state_machine, StateBehavior};
 
 #[derive(Clone, Copy, PartialEq, Debug)]
 enum MarioConsumables {

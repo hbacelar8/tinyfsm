@@ -1,11 +1,13 @@
-# TinyFSM
+# RustFSM
 
-A simple Rust finite state machine library.
+A full static Rust finite state machine library.
+
+Compatible with `no_std` and embedded environments.
 
 ## Example
 
 ```rust
-use tinyfsm::{state_machine, StateBehavior};
+use rustfsm::{state_machine, StateBehavior};
 
 #[derive(Clone, Copy, PartialEq, Debug)]
 enum MarioConsumables {

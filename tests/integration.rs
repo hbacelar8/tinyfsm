@@ -1,4 +1,4 @@
-use tinyfsm::*;
+use rustfsm::*;
 
 #[derive(Clone, Copy, PartialEq, Debug)]
 enum MarioConsumables {
