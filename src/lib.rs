@@ -20,19 +20,66 @@ pub trait StateBehavior {
 
 #[macro_export]
 macro_rules! state_machine {
+    // Case 1: With additional members for the state machine struct
     (
-        $state_machine_name:ident,
+        $state_machine_name:ident {
+            $($member_field:ident: $member_field_type:ty = $member_default:expr),* $(,)?
+        },
         $state_type:ident {
-            $($state_variant:ident $(($($state_variant_data:ty),*))? ),* $(,)?
+            $first_state:ident $(($($first_state_data:ty),*))?,
+            $($remaining_states:ident $(($($remaining_state_data:ty),*))? ),* $(,)?
         },
         $event_type:ident {
             $($event_variant:ident $(($($event_variant_data:ty),*))? ),* $(,)?
         },
         $context_type:ident {
-            $($field_name:ident: $field_type:ty = $default_value:expr),* $(,)?
+            $($context_field:ident: $context_field_type:ty = $context_default:expr),* $(,)?
         }
     ) => {
-        /// States enum
+        state_machine!(@generate $state_machine_name, $state_type, $event_type, $context_type,
+            states { $first_state $(($($first_state_data),*))?, $($remaining_states $(($($remaining_state_data),*))? ),* },
+            events { $($event_variant $(($($event_variant_data),*))? ),* },
+            context { $($context_field: $context_field_type = $context_default),* },
+            members { $($member_field: $member_field_type = $member_default),* },
+            initial_state = $first_state
+        );
+    };
+
+    // Case 1: Without additional members for the state machine struct
+    (
+        $state_machine_name:ident,
+        $state_type:ident {
+            $first_state:ident $(($($first_state_data:ty),*))?,
+            $($remaining_states:ident $(($($remaining_state_data:ty),*))? ),* $(,)?
+        },
+        $event_type:ident {
+            $($event_variant:ident $(($($event_variant_data:ty),*))? ),* $(,)?
+        },
+        $context_type:ident {
+            $($context_field:ident: $context_field_type:ty = $context_default:expr),* $(,)?
+        }
+    ) => {
+        state_machine!(@generate $state_machine_name, $state_type, $event_type, $context_type,
+            states { $first_state $(($($first_state_data),*))?, $($remaining_states $(($($remaining_state_data),*))? ),* },
+            events { $($event_variant $(($($event_variant_data),*))? ),* },
+            context { $($context_field: $context_field_type = $context_default),* },
+            members { },
+            initial_state = $first_state
+        );
+    };
+
+    // Internal implementation for generating the state machine
+    (
+        @generate $state_machine_name:ident, $state_type:ident, $event_type:ident, $context_type:ident,
+        states { $($state_variant:ident $(($($state_variant_data:ty),*))? ),* },
+        events { $($event_variant:ident $(($($event_variant_data:ty),*))? ),* },
+        context { $($context_field:ident: $context_field_type:ty = $context_default:expr),* },
+        members { $($member_field:ident: $member_field_type:ty = $member_default:expr),* },
+        initial_state = $initial_state:ident
+    ) => {
+        /// State machine state type.
+        ///
+        /// - The first state in the list is the state machine's initial state.
         #[derive(Clone, Copy, PartialEq, Debug)]
         pub enum $state_type {
             $(
@@ -40,7 +87,9 @@ macro_rules! state_machine {
             ),*
         }
 
-        /// Events enum
+        /// State machine event type.
+        ///
+        /// List of all events handled by the state machine.
         #[derive(Clone, Copy, PartialEq, Debug)]
         pub enum $event_type {
             $(
@@ -48,41 +97,68 @@ macro_rules! state_machine {
             ),*
         }
 
-        /// Context struct
+        /// State machine context data struct.
+        ///
+        /// The Context struct holds all the state's machine data common and
+        /// accessible to every state.
         #[derive(Debug)]
         pub struct $context_type {
             $(
-                $field_name: $field_type,
+                $context_field: $context_field_type,
             )*
         }
 
-        /// Implement Default trait for the Context
+        // Implement Default trait for the Context.
         impl Default for $context_type {
             fn default() -> Self {
                 Self {
                     $(
-                        $field_name: $default_value,
+                        $context_field: $context_default,
                     )*
                 }
             }
         }
 
-        /// State machine struct
+        /// State machine struct.
         pub struct $state_machine_name {
             current_state: $state_type,
             context: $context_type,
+            $(
+                $member_field: $member_field_type,
+            )*
         }
 
         impl $state_machine_name {
-            /// Create a new state machine
-            pub fn new(initial_state: $state_type, context: $context_type) -> Self {
+            /// Create a new state machine.
+            pub fn new() -> Self {
                 Self {
-                    current_state: initial_state,
-                    context,
+                    current_state: $state_type::$initial_state,
+                    context: $context_type::default(),
+                    $(
+                        $member_field: $member_default,
+                    )*
                 }
             }
 
-            /// Handle an event on a state and transition if necessary
+            /// Transition to a new state.
+            pub fn transition(&mut self, new_state: $state_type) {
+                self.current_state.exit(&mut self.context);
+                self.current_state = new_state;
+                self.current_state.enter(&mut self.context);
+            }
+
+            /// Force transition to a new state without calls to respectives
+            /// `enter` and `exit` functions.
+            pub fn force_state(&mut self, new_state: $state_type) {
+                self.current_state = new_state;
+            }
+
+            /// Get a copy of the current state
+            pub fn get_current_state(&self) -> $state_type {
+                self.current_state
+            }
+
+            /// Handle event and transition if necessary.
             fn handle(&mut self, event: $event_type) {
                 match self.current_state.handle(&event, &mut self.context) {
                     Some(next_state) => {
