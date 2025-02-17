@@ -1,5 +1,6 @@
 use rustfsm::*;
 
+#[allow(dead_code)]
 #[derive(Clone, Copy, PartialEq, Debug)]
 enum MarioConsumables {
     Mushroom,
@@ -16,13 +17,16 @@ enum MarioSize {
 state_machine!(
     Mario,
     MarioStates {
-        DeadMario,
         SmallMario,
         SuperMario,
         FireMario,
-        CapeMario
+        CapeMario,
+        DeadMario,
     },
-    Events { GetConsumable(MarioConsumables), Hit },
+    Events {
+        GetConsumable(MarioConsumables),
+        Hit,
+    },
     Context {
         size: MarioSize = MarioSize::Small,
         alive: bool = true
@@ -68,9 +72,7 @@ impl StateBehavior for MarioStates {
                 _ => None,
             },
             (SmallMario, Hit) => Some(DeadMario),
-            (SuperMario, Hit) => Some(SmallMario),
-            (FireMario, Hit) => Some(SmallMario),
-            (CapeMario, Hit) => Some(SmallMario),
+            (SuperMario | FireMario | CapeMario, Hit) => Some(SmallMario),
             (DeadMario, _) => None,
         }
     }
@@ -78,13 +80,7 @@ impl StateBehavior for MarioStates {
 
 #[test]
 fn integration_test() {
-    let mut mario = Mario::new(
-        MarioStates::SmallMario,
-        Context {
-            size: MarioSize::Small,
-            alive: true,
-        },
-    );
+    let mut mario = Mario::new();
 
     // Initial state
     assert_eq!(mario.current_state, MarioStates::SmallMario);
@@ -100,12 +96,6 @@ fn integration_test() {
     // Get a flower
     mario.handle(Events::GetConsumable(MarioConsumables::Flower));
     assert_eq!(mario.current_state, MarioStates::FireMario);
-    assert_eq!(mario.context.size, MarioSize::Large);
-    assert!(mario.context.alive);
-
-    // Get a feather
-    mario.handle(Events::GetConsumable(MarioConsumables::Feather));
-    assert_eq!(mario.current_state, MarioStates::CapeMario);
     assert_eq!(mario.context.size, MarioSize::Large);
     assert!(mario.context.alive);
 

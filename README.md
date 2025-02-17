@@ -25,13 +25,16 @@ enum MarioSize {
 state_machine!(
     Mario,
     MarioStates {
-        DeadMario,
         SmallMario,
         SuperMario,
         FireMario,
-        CapeMario
+        CapeMario,
+        DeadMario,
     },
-    Events { GetConsumable(MarioConsumables), Hit },
+    Events {
+        GetConsumable(MarioConsumables),
+        Hit,
+    },
     Context {
         size: MarioSize = MarioSize::Small,
         alive: bool = true
@@ -76,20 +79,15 @@ impl StateBehavior for MarioStates {
                 Flower => Some(FireMario),
                 _ => None,
             },
-            (SmallMario | SuperMario | FireMario | CapeMario, Hit) => Some(DeadMario),
+            (SmallMario, Hit) => Some(DeadMario),
+            (SuperMario | FireMario | CapeMario, Hit) => Some(SmallMario),
             (DeadMario, _) => None,
         }
     }
 }
 
 fn main() {
-    let mut mario = Mario::new(
-        MarioStates::SmallMario,
-        Context {
-            size: MarioSize::Small,
-            alive: true,
-        },
-    );
+    let mut mario = Mario::new();
 
     // Initial state
     assert_eq!(mario.current_state, MarioStates::SmallMario);
