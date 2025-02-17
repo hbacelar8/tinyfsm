@@ -1,3 +1,5 @@
+#![no_std]
+
 use core::fmt;
 
 /// Trait for the state behavior
