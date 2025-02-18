@@ -7,7 +7,7 @@ Compatible with `no_std` and embedded environments.
 ## Example
 
 ```rust
-use rustfsm::{state_machine, StateBehavior};
+use rustfsm::{rustfsm, StateBehavior};
 
 #[derive(Clone, Copy, PartialEq, Debug)]
 enum MarioConsumables {
@@ -22,7 +22,8 @@ enum MarioSize {
     Large,
 }
 
-state_machine!(
+// Generate the state machine
+rustfsm!(
     Mario,
     MarioStates {
         SmallMario,
@@ -41,6 +42,7 @@ state_machine!(
     }
 );
 
+// Implement state behavior for all states
 impl StateBehavior for MarioStates {
     type State = MarioStates;
     type Event = Events;

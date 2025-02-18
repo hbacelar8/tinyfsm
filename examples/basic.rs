@@ -1,4 +1,4 @@
-use rustfsm::{state_machine, StateBehavior};
+use rustfsm::{rustfsm, StateBehavior};
 
 #[derive(Clone, Copy, PartialEq, Debug)]
 enum MarioConsumables {
@@ -13,7 +13,7 @@ enum MarioSize {
     Large,
 }
 
-state_machine!(
+rustfsm!(
     Mario,
     MarioStates {
         SmallMario,

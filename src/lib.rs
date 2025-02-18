@@ -19,7 +19,7 @@ pub trait StateBehavior {
 }
 
 #[macro_export]
-macro_rules! state_machine {
+macro_rules! rustfsm {
     // Case 1: With additional members for the state machine struct
     (
         $state_machine_name:ident {
@@ -36,7 +36,7 @@ macro_rules! state_machine {
             $($context_field:ident: $context_field_type:ty = $context_default:expr),* $(,)?
         }
     ) => {
-        state_machine!(@generate $state_machine_name, $state_type, $event_type, $context_type,
+        rustfsm!(@generate $state_machine_name, $state_type, $event_type, $context_type,
             states { $first_state $(($($first_state_data),*))?, $($remaining_states $(($($remaining_state_data),*))? ),* },
             events { $($event_variant $(($($event_variant_data),*))? ),* },
             context { $($context_field: $context_field_type = $context_default),* },
@@ -59,7 +59,7 @@ macro_rules! state_machine {
             $($context_field:ident: $context_field_type:ty = $context_default:expr),* $(,)?
         }
     ) => {
-        state_machine!(@generate $state_machine_name, $state_type, $event_type, $context_type,
+        rustfsm!(@generate $state_machine_name, $state_type, $event_type, $context_type,
             states { $first_state $(($($first_state_data),*))?, $($remaining_states $(($($remaining_state_data),*))? ),* },
             events { $($event_variant $(($($event_variant_data),*))? ),* },
             context { $($context_field: $context_field_type = $context_default),* },

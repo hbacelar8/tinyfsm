@@ -14,7 +14,7 @@ enum MarioSize {
     Large,
 }
 
-state_machine!(
+rustfsm!(
     Mario,
     MarioStates {
         SmallMario,
