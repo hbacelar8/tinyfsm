@@ -18,6 +18,63 @@ pub trait StateBehavior {
     fn exit(&self, _context: &mut Self::Context) {}
 }
 
+/// # RustFSM
+///
+/// A full static Rust finite state machine library.
+///
+/// ## Usage
+///
+/// The `rustfsm` macro takes as input the state machine's name, list of
+/// states, list of events and context.
+///
+/// The state machine's name can be just an ident if no other member is desired
+/// to the struct:
+///
+/// ```rust,ignore
+/// use rustfsm::{rustfsm, StateBehavior};
+///
+/// rustfsm!(
+///     FooName,
+///     FooStates {
+///         FooStateA,
+///         FooStateB,
+///     },
+///     Events {
+///         FooEvent1,
+///         FooEvent2,
+///     },
+///     Context {
+///         context_foo_data: u8 = 0,
+///         context_boo_data: bool = true,
+///     }
+/// );
+/// ```
+///
+/// The state machine's name can also be a struct with default values if data
+/// other than the cotext is desired:
+///
+/// ```rust,ignore
+/// use rustfsm::{rustfsm, StateBehavior};
+///
+/// rustfsm!(
+///     FooName {
+///         foo_data: u16 = 0,
+///         boo_data: boo = false,
+///     },
+///     FooStates {
+///         FooStateA,
+///         FooStateB,
+///     },
+///     Events {
+///         FooEvent1,
+///         FooEvent2,
+///     },
+///     Context {
+///         foo_data: u8 = 0,
+///         boo_data: bool = true,
+///     }
+/// );
+/// ```
 #[macro_export]
 macro_rules! rustfsm {
     // Case 1: With additional members for the state machine struct
